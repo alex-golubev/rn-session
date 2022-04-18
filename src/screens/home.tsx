@@ -15,10 +15,7 @@ const Home = () => {
 
   useEffect(() => {
     AsyncStorage.getItem('user_credentials').then(val => {
-      if (val) {
-        return setCookie(val);
-      }
-      setCookie(null);
+      setCookie(val);
     });
   }, [isFocused]);
 
