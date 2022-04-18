@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {View, StyleSheet, Button, Text} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {RootStackParamList} from '../index';
@@ -10,15 +10,18 @@ type HomeScreenProp = NativeStackNavigationProp<RootStackParamList, 'Web'>;
 const Home = () => {
   const [cookie, setCookie] = useState<null | string>(null);
 
+  const navigation = useNavigation<HomeScreenProp>();
+  const isFocused = useIsFocused();
+
   useEffect(() => {
     AsyncStorage.getItem('user_credentials').then(val => {
       if (val) {
-        setCookie(val);
+        return setCookie(val);
       }
+      setCookie(null);
     });
-  }, []);
+  }, [isFocused]);
 
-  const navigation = useNavigation<HomeScreenProp>();
   return (
     <View style={styles.wrap}>
       {cookie ? (
