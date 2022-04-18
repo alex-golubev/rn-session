@@ -12,7 +12,9 @@ const Home = () => {
 
   useEffect(() => {
     AsyncStorage.getItem('user_credentials').then(val => {
-      setCookie(val);
+      if (val) {
+        setCookie(val);
+      }
     });
   }, []);
 

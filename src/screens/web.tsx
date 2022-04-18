@@ -1,8 +1,9 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Button,
   SafeAreaView,
   StyleSheet,
+  Text,
   useColorScheme,
   View,
 } from 'react-native';
@@ -20,27 +21,43 @@ const Web = () => {
   const uri = 'https://blizko.ru/';
   const isDarkMode = useColorScheme() === 'dark';
   const navigation = useNavigation<WebScreenProp>();
+  const [auth, setAuth] = useState<null | string>(null);
 
-  useEffect(() => {
+  const getAuthCookie = () => {
     CookieManager.get(uri, true).then(success => {
       if (success.user_credentials) {
-        AsyncStorage.setItem(
+        setAuth(JSON.stringify(success.user_credentials));
+        return AsyncStorage.setItem(
           'user_credentials',
           JSON.stringify(success.user_credentials),
         );
       }
+      setAuth(null);
+      AsyncStorage.removeItem('user_credentials').catch(err =>
+        console.log(err),
+      );
     });
-  }, []);
+  };
 
   const setUserCookie = async () => {
     const value = await AsyncStorage.getItem('user_credentials');
     if (value) {
-      console.log(value);
       await CookieManager.set(uri, JSON.parse(value), true);
     }
+    AsyncStorage.removeItem('user_credentials').catch(err => console.log(err));
   };
 
-  setUserCookie();
+  useEffect(() => {
+    getAuthCookie();
+  }, []);
+
+  useEffect(() => {
+    setUserCookie();
+  }, [auth]);
+
+  const webVueNavigationChange = () => {
+    getAuthCookie();
+  };
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
@@ -52,8 +69,12 @@ const Web = () => {
         title="Back to Home"
         onPress={() => navigation.navigate('Home')}
       />
+      {auth ? <Text style={styles.authText}>Успешная авторизация</Text> : null}
       <View style={styles.webView}>
-        <WebView source={{uri}} />
+        <WebView
+          source={{uri}}
+          onNavigationStateChange={webVueNavigationChange}
+        />
       </View>
     </SafeAreaView>
   );
@@ -63,6 +84,10 @@ const styles = StyleSheet.create({
   webView: {
     width: '100%',
     height: '100%',
+  },
+  authText: {
+    height: 24,
+    textAlign: 'center',
   },
 });
 
