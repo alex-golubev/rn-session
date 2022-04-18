@@ -53,7 +53,7 @@ const Web = () => {
         onPress={() => navigation.navigate('Home')}
       />
       <View style={styles.webView}>
-        <WebView source={{uri}} sharedCookiesEnabled />
+        <WebView source={{uri}} />
       </View>
     </SafeAreaView>
   );
