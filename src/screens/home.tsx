@@ -1,15 +1,27 @@
-import React from 'react';
-import {View, StyleSheet, Button} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View, StyleSheet, Button, Text} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {RootStackParamList} from '../index';
 
 type HomeScreenProp = NativeStackNavigationProp<RootStackParamList, 'Web'>;
 
 const Home = () => {
+  const [cookie, setCookie] = useState<null | string>(null);
+
+  useEffect(() => {
+    AsyncStorage.getItem('user_credentials').then(val => {
+      setCookie(val);
+    });
+  }, []);
+
   const navigation = useNavigation<HomeScreenProp>();
   return (
     <View style={styles.wrap}>
+      {cookie ? (
+        <Text style={styles.authText}>Успешная авторизация</Text>
+      ) : null}
       <Button title="Open WebView" onPress={() => navigation.navigate('Web')} />
     </View>
   );
@@ -20,6 +32,9 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  authText: {
+    marginBottom: 40,
   },
 });
 
